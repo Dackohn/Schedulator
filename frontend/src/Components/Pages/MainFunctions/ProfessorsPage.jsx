@@ -7,14 +7,9 @@ function AddProfessorModal({ isOpen, onClose, onSubmit, professor, setProfessor 
 
   const handleCourseChange = (e) => {
     const parts = e.target.value.split(',').map(part => part.trim());
-    const courses = [{
-        name: parts[0] || '', 
-        course_type: parts[1] || ''
-    }];
+    const courses = [[parts[0], parts[1]]];
     setProfessor({ ...professor, courses });
 };
-
-
   return (
     <div className="modal-backdrop">
       <div className="modal">

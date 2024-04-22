@@ -5,7 +5,7 @@ from flask_session import Session
 from config import ApplicationConfig
 from models import db, User
 import json
-from create_schedule import create_schedule_dataframe,save_schedule_as_image
+from create_schedule import create_schedule_dataframe,save_schedule_as_image, save_daily_schedule_as_image
 from create_vertex import create_graph_and_apply_coloring
 from functions import load_data_from_json,Teach , Grup
 from classes import Teacher,Group
@@ -155,10 +155,11 @@ def create_the_schedule():
     G, colors = create_graph_and_apply_coloring(get_current_user_id())
     df = create_schedule_dataframe(G, colors)
     save_schedule_as_image(df, 'weekly_schedule.png')
+    save_daily_schedule_as_image(df,'')
 
 def get_current_user_id():
     user_id = session.get('user_id', None)
-    if user_id is None:
+    if user_id is None: 
         return None
     return user_id
 
