@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import httpClient from "../../../httpClient";
+import Cookies from 'js-cookie';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -13,6 +14,10 @@ export const LoginPage = () => {
         email,
         password,
       });
+
+      // Assuming the response contains the user_id and session_id
+      Cookies.set('user_id', resp.data.id);
+      Cookies.set('session_id', resp.data.session_id);
 
       window.location.href = "/dashboard";
     } catch (error) {

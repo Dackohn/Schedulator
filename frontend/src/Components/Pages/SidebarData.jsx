@@ -5,6 +5,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import ClassIcon from '@mui/icons-material/Class';
 import GroupsIcon from '@mui/icons-material/Groups';
 import DownloadIcon from '@mui/icons-material/Download';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 export const  SidebarData = [
     {
@@ -36,6 +37,11 @@ export const  SidebarData = [
         title:"Download",
         icon:<DownloadIcon />,
         link:"/download"
+    },
+    {
+        title:"Logout",
+        icon:<LogoutIcon/>,
+        link:"/logout"
     }
 ]
   

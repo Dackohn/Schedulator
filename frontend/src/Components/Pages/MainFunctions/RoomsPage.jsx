@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Sidebar from '../Sidebar';
 import "./MainFunctions.css";
+import DeleteIcon from '@mui/icons-material/Delete';
 
 function AddRoomModal({ isOpen, onClose, onSubmit, room, setRoom }) {
   if (!isOpen) return null;
@@ -117,17 +118,19 @@ function RoomsPage() {
           <table className='list_table'>
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Room Name</th>
-                <th>Office Type</th>
+                <th className='table-column'>ID</th>
+                <th className='table-column'>Room Name</th>
+                <th className='table-column'>Office Type</th>
+                <th className='table-column'>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredRooms.map((room, index) => (
                 <tr key={room.id || index}>
-                  <td>{index + 1}</td>
-                  <td>{room.name}</td>
-                  <td className='courses'>{room.office_type}</td>
+                  <td className='table-column'>{index + 1}</td>
+                  <td className='table-column'>{room.name}</td>
+                  <td className='courses table-column'>{room.office_type}</td>
+                  <td className='delete-icon table-column'><DeleteIcon /></td>
                 </tr>
               ))}
             </tbody>

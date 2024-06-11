@@ -6,7 +6,7 @@ export const LoginSignup = () => {
     <div className='container'>
       <div className="background"></div>
       <div className="header">
-        Welcome To Schedulator
+        Welcome To Schedule Maker
       </div>
       <div className="buttons">
         <div className="submit-container">

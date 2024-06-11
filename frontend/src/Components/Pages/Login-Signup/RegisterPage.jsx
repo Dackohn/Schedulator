@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import httpClient from "../../../httpClient";
+import Cookies from 'js-cookie';
 
 export const RegisterPage = () => {
   const [email, setEmail] = useState("");
@@ -12,11 +13,11 @@ export const RegisterPage = () => {
         password,
       });
 
-      // Assuming successful registration, redirect to another page
-      console.log("User registered successfully:", response.data);
+      // Assuming the response contains the user_id and session_id
+      Cookies.set('user_id', response.data.id);
+      Cookies.set('session_id', response.data.session_id);
 
-      window.location.href = "/"; // Redirect to homepage
-
+      window.location.href = "/dashboard"; // Redirect to dashboard
     } catch (error) {
       if (error.response && error.response.status === 409) {
         alert("User already exists with this email.");

@@ -38,7 +38,7 @@ function DashboardPage() {
           </div>
           <div className='notifications'>
             <h2>Notifications</h2>
-            {/* Add notifications content here */}
+            11.06.2024 : A new schedule for the next semester available. Don't forget to download it.
           </div>
         </div>
       </div>

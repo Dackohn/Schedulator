@@ -1,11 +1,12 @@
-from flask import Flask, request, abort, jsonify, session
+from flask import Flask, request, abort, jsonify, session, send_file, make_response 
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from flask_session import Session
 from config import ApplicationConfig
 from models import db, User
+import os
 import json
-from create_schedule import create_schedule_dataframe, save_schedule_as_image
+from create_schedule import create_schedule_dataframe, save_schedule_as_image, save_daily_schedule_as_image
 from create_vertex import create_graph_and_apply_coloring
 from functions import load_data_from_json, Teach, Grup, Office
 from classes import Teacher, Group, Offices
@@ -57,11 +58,21 @@ def login_user():
         return jsonify({"error": "Unauthorized"}), 401
 
     session["user_id"] = user.id
-
-    return jsonify({
+    response = make_response(jsonify({
         "id": user.id,
         "email": user.email
-    })
+    }))
+    response.set_cookie('user_id', str(user.id), httponly=True)
+    response.set_cookie('session_id', session.sid, httponly=True)
+    return response
+
+@app.route("/logout", methods=["POST"])
+def logout_user():
+    session.clear()
+    response = make_response(jsonify({"message": "Logged out"}))
+    response.delete_cookie('user_id')
+    response.delete_cookie('session_id')
+    return response
 
 @app.route('/professors')
 def get_teach_data():
@@ -179,12 +190,6 @@ def add_room():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-def create_the_schedule():
-    G, colors = create_graph_and_apply_coloring(get_current_user_id())
-    df = create_schedule_dataframe(G, colors)
-    save_schedule_as_image(df, 'weekly_schedule.png')
-
-
 @app.route('/courses')
 def get_course_data():
     user_id = get_current_user_id()
@@ -248,7 +253,29 @@ def get_stats():
     except Exception as e:
         return jsonify({"error": str(e)})
 
+@app.route('/download/week-schedule', methods=['GET'])
+def download_week_schedule():
+    file_path = os.path.join(os.path.dirname(__file__), 'Assets/weekly_schedule.png')
+    if os.path.exists(file_path):
+        return send_file(file_path, as_attachment=True)
+    else:
+        return "File not found", 404
 
+@app.route('/download/day-schedule', methods=['GET'])
+def download_day_schedule():
+    file_path = os.path.join(os.path.dirname(__file__), 'Assets/day_schedule.png')
+    if os.path.exists(file_path):
+        return send_file(file_path, as_attachment=True)
+    else:
+        return "File not found", 404
+
+
+
+def create_the_schedule():
+    G, colors = create_graph_and_apply_coloring(get_current_user_id())
+    df = create_schedule_dataframe(G, colors)
+    save_schedule_as_image(df, 'weekly_schedule.png')
+    save_daily_schedule_as_image(df, '')
 
 
 

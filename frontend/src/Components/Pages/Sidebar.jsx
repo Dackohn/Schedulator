@@ -1,10 +1,14 @@
 import React from 'react'
 import { SidebarData } from './SidebarData'
 import "./Sidebar.css"
+import Logo from './Logo.jsx'
 function Sidebar() {
   return (
         <div className="page-border">
             <div className="naming-box"></div>
+            <div className='logo-container'>
+                <Logo />
+            </div>
                 <div className="Sidebar">
                     <ul className="sidebar_list">
                     {SidebarData.map((val, key) => {

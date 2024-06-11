@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Sidebar from '../Sidebar';
 import "./MainFunctions.css";
+import DeleteIcon from '@mui/icons-material/Delete';
 
 function AddProfessorModal({ isOpen, onClose, onSubmit, professor, setProfessor }) {
   if (!isOpen) return null;
@@ -129,21 +130,23 @@ const handleAddProfessor = (professor) => {
         <table className='list_table'>
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Professor</th>
-              <th>Courses</th>
-              <th>Language</th>
+              <th className='table-column'>ID</th>
+              <th className='table-column'>Professor</th>
+              <th className='table-column'>Courses</th>
+              <th className='table-column'>Language</th>
+              <th className='table-column'>Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredTeachers.map((teacher, index) => (
               <tr key={teacher.id}>
-                <td>{index + 1}</td>
-                <td>{teacher.name}</td>
-                <td className='courses'>{teacher.courses.map(course => (
+                <td className='table-column'>{index + 1}</td>
+                <td className='table-column'>{teacher.name}</td>
+                <td className='courses table-column'>{teacher.courses.map(course => (
                   <span key={course}>{course[0]}, {course[1]} </span>
                 ))}</td>
-                <td>{teacher.language}</td>
+                <td className='table-column'>{teacher.language}</td>
+                <td className='delete-icon table-column'><DeleteIcon /></td>
               </tr>
             ))}
           </tbody>

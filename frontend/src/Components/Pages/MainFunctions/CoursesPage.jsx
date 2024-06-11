@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Sidebar from '../Sidebar';
+import DeleteIcon from '@mui/icons-material/Delete';
 import "./MainFunctions.css";
 
 function AddCourseModal({ isOpen, onClose, onSubmit, course, setCourse }) {
@@ -117,17 +118,19 @@ function CoursesPage() {
           <table className='list_table'>
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Course Name</th>
-                <th>Course Type</th>
+                <th className='table-column'>ID</th>
+                <th className='table-column'>Course Name</th>
+                <th className='table-column'>Course Type</th>
+                <th className='table-column'>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredCourses.map((course, index) => (
                 <tr key={course.id || index}>
-                  <td>{index + 1}</td>
-                  <td>{course.name}</td>
-                  <td className='courses'>{course.course_type}</td>
+                  <td className='table-column'>{index + 1}</td>
+                  <td className='table-column'>{course.name}</td>
+                  <td className='courses table-column' >{course.course_type}</td>
+                  <td className='delete-icon table-column'><DeleteIcon /></td>
                 </tr>
               ))}
             </tbody>

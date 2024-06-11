@@ -3,7 +3,7 @@
     top: 50%; /* Position at the vertical center */
     left: 50%; /* Position at the horizontal center */
     transform: translate(-50%, -50%); /* Center the element precisely */
-    background-color: #ce9491;
+    background-color: #F6EEE7;
     height: calc(100% - 40px);
     width: calc(100% - 40px); /* Calculate width to leave space for Sidebar */
     padding: 20px; /* Add padding inside the border */
@@ -78,4 +78,22 @@
     border-radius: 10px;
     
 }
+
+.logo-container {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 2; 
+  }
+
+.logo {
+    font-family: 'Allerta Stencil', sans-serif;
+    font-size: 24px;
+    color: #f6a232;
+  }
+  
+  .logo .letter-s {
+    color: #000;
+  }
+  
 
