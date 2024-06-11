@@ -54,3 +54,27 @@ def save_schedule_as_image(df, image_path='schedule.png'):
     plt.savefig(image_path, bbox_inches='tight', dpi=300)
     plt.close(fig)
 
+
+def save_daily_schedule_as_image(df, base_image_path='schedule'):
+    if not isinstance(df, pd.DataFrame) or not isinstance(df.columns, pd.MultiIndex):
+        raise ValueError("df must be a DataFrame with MultiIndex columns.")
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+    for day in days:
+        day_schedule = df.xs(day, level='Day', axis=1)
+        fig, ax = plt.subplots(figsize=(20, 6))
+        ax.axis('off')
+        ax.set_title(day, fontweight='bold', size=6)
+        table = ax.table(cellText=day_schedule.values, colLabels=day_schedule.columns, rowLabels=day_schedule.index, loc='center', cellLoc='center')
+        table.auto_set_font_size(False)
+        table.set_fontsize(5)
+        table.scale(1, 2)
+        for key, cell in table.get_celld().items():
+            if key[0] == 0:
+                cell.set_facecolor('black')
+                cell.set_text_props(color='white', weight='bold')
+            if key[1] == -1:
+                cell.set_facecolor('grey')
+                cell.set_text_props(color='white', weight='bold')
+        plt.tight_layout()
+        plt.savefig(f"{base_image_path}{day.lower()}.png", bbox_inches='tight', dpi=300)
+        plt.close(fig)

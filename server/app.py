@@ -184,6 +184,7 @@ def create_the_schedule():
     df = create_schedule_dataframe(G, colors)
     save_schedule_as_image(df, 'weekly_schedule.png')
 
+
 @app.route('/courses')
 def get_course_data():
     user_id = get_current_user_id()
@@ -225,6 +226,29 @@ def add_course():
         return jsonify({'error': f'Missing key {str(e)}'}), 400
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/dashboard')
+def get_stats():
+    user_id = get_current_user_id()
+    user = User.query.get(user_id)
+    if not user or not user.ScheduleData:
+        return jsonify({"groups": 0, "courses": 0, "professors": 0})
+
+    try:
+        if user.ScheduleData:
+            schedule_data = json.loads(user.ScheduleData)
+            groups = len([entry for entry in schedule_data if entry['type'] == 'Group'])
+            courses = len([entry for entry in schedule_data if entry['type'] == 'Course'])
+            professors = len([entry for entry in schedule_data if entry['type'] == 'Teacher'])
+            return jsonify({"groups": groups, "courses": courses, "professors": professors})
+        else:
+            return jsonify({"groups": 0, "courses": 0, "professors": 0})
+    except json.JSONDecodeError:
+        return jsonify({"groups": 0, "courses": 0, "professors": 0})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+
 
 
 
