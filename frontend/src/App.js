@@ -16,7 +16,6 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" exact element={<LoginSignup />} />
-        <Route path="*" exact element={<NotFound />} />
         <Route path="/login" exact element={<LoginPage />} />
         <Route path="/register" exact element={<RegisterPage />} />
         <Route path="/dashboard" exact element={<DashboardPage />} />
@@ -25,6 +24,7 @@ function App() {
         <Route path="/professors" exact element={<ProfessorsPage />} />
         <Route path="/courses" exact element={<CoursesPage />} />
         <Route path="/download" exact element={<DownloadPage />} />
+        <Route path="*" exact element={<NotFound />} />
       </Routes>
     </Router>
   );

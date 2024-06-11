@@ -53,3 +53,4 @@ def save_schedule_as_image(df, image_path='schedule.png'):
     plt.tight_layout()
     plt.savefig(image_path, bbox_inches='tight', dpi=300)
     plt.close(fig)
+

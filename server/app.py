@@ -1,14 +1,14 @@
-from flask import Flask , request, abort, jsonify, session
+from flask import Flask, request, abort, jsonify, session
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from flask_session import Session
 from config import ApplicationConfig
 from models import db, User
 import json
-from create_schedule import create_schedule_dataframe,save_schedule_as_image
+from create_schedule import create_schedule_dataframe, save_schedule_as_image
 from create_vertex import create_graph_and_apply_coloring
-from functions import load_data_from_json,Teach , Grup
-from classes import Teacher,Group
+from functions import load_data_from_json, Teach, Grup, Office
+from classes import Teacher, Group, Offices
 from add_del import add_data_to_json, data_exists_in_json, remove_data_from_json
 
 app = Flask(__name__)
@@ -20,7 +20,6 @@ server_session = Session(app)
 db.init_app(app)
 with app.app_context():
     db.create_all()
-
 
 @app.route("/register", methods=["POST"])
 def register_user():
@@ -43,7 +42,6 @@ def register_user():
         "id": new_user.id,
         "email": new_user.email
     })
-
 
 @app.route("/login", methods=["POST"])
 def login_user():
@@ -75,10 +73,10 @@ def get_teach_data():
     try:
         if user.ScheduleData:
             schedule_data = json.loads(user.ScheduleData)
-            _, teachers = Teach(schedule_data)  # Assuming Teach returns count and list
+            _, teachers = Teach(schedule_data)
             return jsonify({'count': len(teachers), 'teachers': teachers})
         else:
-            return jsonify({'count': 0, 'teachers': []})  # No data to show
+            return jsonify({'count': 0, 'teachers': []})
     except json.JSONDecodeError:
         return jsonify({"error": "Failed to decode JSON"}), 500
     except Exception as e:
@@ -86,14 +84,13 @@ def get_teach_data():
 
 @app.route('/add-professor', methods=['POST'])
 def add_professor():
-    print("Received data:", request.json)
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({'error': 'User not logged in'}), 401
 
     try:
         data = request.json.get('data')
-        new_teacher = Teacher(name=data['name'], courses=data['courses'], language=data['language'])  # adjust according to actual constructor
+        new_teacher = Teacher(name=data['name'], courses=data['courses'], language=data['language'])
 
         add_data_to_json(user_id, 'Teacher', new_teacher)
         return jsonify({'message': 'Professor added successfully'}), 200
@@ -101,8 +98,6 @@ def add_professor():
         return jsonify({'error': f'Missing key {str(e)}'}), 400
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-
 
 @app.route('/remove-professor', methods=['POST'])
 def remove_professor():
@@ -122,10 +117,10 @@ def get_group_data():
     try:
         if user.ScheduleData:
             schedule_data = json.loads(user.ScheduleData)
-            _, groups = Grup(schedule_data)  # Assuming Teach returns count and list
+            _, groups = Grup(schedule_data)
             return jsonify({'count': len(groups), 'groups': groups})
         else:
-            return jsonify({'count': 0, 'groups': []})  # No data to show
+            return jsonify({'count': 0, 'groups': []})
     except json.JSONDecodeError:
         return jsonify({"error": "Failed to decode JSON"}), 500
     except Exception as e:
@@ -133,28 +128,105 @@ def get_group_data():
 
 @app.route('/add-group', methods=['POST'])
 def add_group():
-    print("Received data:", request.json)
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({'error': 'User not logged in'}), 401
 
     try:
         data = request.json.get('data')
-        new_group = Group(name=data['name'], courses=data['courses'],
-                          language=data['language'])  # adjust according to actual constructor
+        new_group = Group(name=data['name'], courses=data['courses'], language=data['language'])
 
         add_data_to_json(user_id, 'Group', new_group)
-        return jsonify({'message': 'Professor added successfully'}), 200
+        return jsonify({'message': 'Group added successfully'}), 200
+    except KeyError as e:
+        return jsonify({'error': f'Missing key {str(e)}'}), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/rooms')
+def get_office_data():
+    user_id = get_current_user_id()
+    user = User.query.get(user_id)
+    if not user or not user.ScheduleData:
+        return jsonify({"error": "No schedule data found"}), 404
+
+    try:
+        if user.ScheduleData:
+            schedule_data = json.loads(user.ScheduleData)
+            _, offices = Office(schedule_data)
+            return jsonify({'count': len(offices), 'offices': offices})
+        else:
+            return jsonify({'count': 0, 'offices': []})
+    except json.JSONDecodeError:
+        return jsonify({"error": "Failed to decode JSON"}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/add-room', methods=['POST'])
+def add_room():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'User not logged in'}), 401
+
+    try:
+        data = request.json.get('data')
+        new_office = Offices(name=data['name'], office_type=data['office_type'])
+
+        add_data_to_json(user_id, 'Office', new_office)
+        return jsonify({'message': 'Room added successfully'}), 200
+    except KeyError as e:
+        return jsonify({'error': f'Missing key {str(e)}'}), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+def create_the_schedule():
+    G, colors = create_graph_and_apply_coloring(get_current_user_id())
+    df = create_schedule_dataframe(G, colors)
+    save_schedule_as_image(df, 'weekly_schedule.png')
+
+@app.route('/courses')
+def get_course_data():
+    user_id = get_current_user_id()
+    user = User.query.get(user_id)
+    if not user or not user.ScheduleData:
+        return jsonify({"error": "No schedule data found"}), 404
+
+    try:
+        if user.ScheduleData:
+            schedule_data = json.loads(user.ScheduleData)
+            courses = [entry['data'] for entry in schedule_data if entry['type'] == 'Course']
+            return jsonify({'count': len(courses), 'courses': courses})
+        else:
+            return jsonify({'count': 0, 'courses': []})
+    except json.JSONDecodeError:
+        return jsonify({"error": "Failed to decode JSON"}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/add-course', methods=['POST'])
+def add_course():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'User not logged in'}), 401
+
+    try:
+        data = request.json.get('data')
+        new_course = {
+            "type": "Course",
+            "data": {
+                "name": data['name'],
+                "course_type": data['course_type']
+            }
+        }
+
+        add_data_to_json(user_id, 'Course', new_course)
+        return jsonify({'message': 'Course added successfully'}), 200
     except KeyError as e:
         return jsonify({'error': f'Missing key {str(e)}'}), 400
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 
-def create_the_schedule():
-    G, colors = create_graph_and_apply_coloring(get_current_user_id())
-    df = create_schedule_dataframe(G, colors)
-    save_schedule_as_image(df, 'weekly_schedule.png')
 
 def get_current_user_id():
     user_id = session.get('user_id', None)
